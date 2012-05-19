@@ -1,8 +1,10 @@
-# StatsD Middleware for ZeroRPC
+StatsD Middleware for ZeroRPC
+=============================
 
 A StatsD middleware to track requests and response times of ZeroRPC Services
 
-
+Usage
+-----
 ```python
 
 import zerorpc
@@ -16,7 +18,6 @@ client = statsd.StatsClient()
 zerorpc.Context.get_instance().register_middleware(StatsdMiddleware(client))
 
 # Create a server as usual, it will be automatically tracked by the middleware
-
 class Service(object):
     def do_something(self):
         pass
