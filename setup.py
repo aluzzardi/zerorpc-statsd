@@ -5,7 +5,7 @@ except ImportError:
 
 
 setup(
-    name='zerorpc_statsd',
+    name='zerorpc-statsd',
     version='0.1.0',
     description='StatsD Middleware for ZeroRPC.',
     author='Andrea Luzzardi',
