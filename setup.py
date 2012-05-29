@@ -15,5 +15,13 @@ setup(
     install_requires=[
             'statsd>=0.5.1'
     ],
-    license='MIT'
+    classifiers = [
+        'Programming Language :: Python',
+        'Development Status :: 4 - Beta',
+        'Environment :: Other Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Topic :: Software Development :: Libraries :: Python Modules'
+        ]
 )
