@@ -1,21 +1,37 @@
+import gevent.local
 import time
 
 class StatsdMiddleware(object):
+
     def __init__(self, statsd):
         self._statsd = statsd
+        self._locals = gevent.local.local()
 
-    def call_procedure(self, procedure, *args, **kwargs):
+    @property
+    def _exec_start(self):
+        return self._locals._exec_start
+
+    @_exec_start.setter
+    def _exec_start(self, ts):
+        self._locals._exec_start = ts
+
+    def _submit_response_time(self, procedure_name):
+        dt = int((time.time() - self._exec_start) * 1000)
+        self._statsd.timing('zerorpc.response_time', dt)
+        self._statsd.timing(
+            'zerorpc.response_time.{0}'.format(procedure_name),
+            dt
+        )
+
+    def procedure_call_request(self, request_event):
         self._statsd.incr('zerorpc.requests')
-        self._statsd.incr('zerorpc.requests.{0}'.format(procedure.__name__))
-        start = time.time()
-        try:
-            return procedure(*args, **kwargs)
-        except:
-            self._statsd.incr('zerorpc.errors')
-            self._statsd.incr('zerorpc.errors.{0}'.format(procedure.__name__))
-            raise
-        finally:
-            dt = int((time.time() - start) * 1000)
-            self._statsd.timing('zerorpc.response_time', dt)
-            self._statsd.timing('zerorpc.response_time.{0}'.format(
-                procedure.__name__), dt)
+        self._statsd.incr('zerorpc.requests.{0}'.format(request_event.name))
+        self._exec_start = time.time()
+
+    def procedure_call_reply(self, request_event, reply_event):
+        self._submit_response_time(request_event.name)
+
+    def inspect_error(self, task_context, request_event, reply_event, exc_info):
+        self._submit_response_time()
+        self._statsd.incr('zerorpc.errors')
+        self._statsd.incr('zerorpc.errors.{0}'.format(request_event.name))
