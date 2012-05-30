@@ -32,6 +32,6 @@ class StatsdMiddleware(object):
         self._submit_response_time(request_event.name)
 
     def inspect_error(self, task_context, request_event, reply_event, exc_info):
-        self._submit_response_time()
+        self._submit_response_time(request_event.name)
         self._statsd.incr('zerorpc.errors')
         self._statsd.incr('zerorpc.errors.{0}'.format(request_event.name))
