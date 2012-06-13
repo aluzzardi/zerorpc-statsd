@@ -9,7 +9,7 @@ class StatsdMiddleware(object):
 
     @property
     def _exec_start(self):
-        return self._locals._exec_start
+        return self._locals.__dict__.get('_exec_start')
 
     @_exec_start.setter
     def _exec_start(self, ts):
@@ -32,6 +32,10 @@ class StatsdMiddleware(object):
         self._submit_response_time(request_event.name)
 
     def inspect_error(self, task_context, request_event, reply_event, exc_info):
-        self._submit_response_time(request_event.name)
+        # In the case of a NameError exception _exec_start will not have been
+        # set but inspect_error will be called nonetheless. In that case we
+        # can't submit the response_time.
+        if self._exec_start:
+            self._submit_response_time(request_event.name)
         self._statsd.incr('zerorpc.errors')
         self._statsd.incr('zerorpc.errors.{0}'.format(request_event.name))
