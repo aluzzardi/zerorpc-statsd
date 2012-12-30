@@ -23,19 +23,19 @@ class StatsdMiddleware(object):
             dt
         )
 
-    def procedure_call_request(self, request_event):
+    def server_before_exec(self, req_event):
         self._statsd.incr('zerorpc.requests')
-        self._statsd.incr('zerorpc.requests.{0}'.format(request_event.name))
+        self._statsd.incr('zerorpc.requests.{0}'.format(req_event.name))
         self._exec_start = time.time()
 
-    def procedure_call_reply(self, request_event, reply_event):
-        self._submit_response_time(request_event.name)
+    def server_after_exec(self, req_event, rep_event):
+        self._submit_response_time(req_event.name)
 
-    def inspect_error(self, task_context, request_event, reply_event, exc_info):
+    def server_inspect_exception(self, req_event, rep_event, task_context, exc_info):
         # In the case of a NameError exception _exec_start will not have been
         # set but inspect_error will be called nonetheless. In that case we
         # can't submit the response_time.
         if self._exec_start:
-            self._submit_response_time(request_event.name)
+            self._submit_response_time(req_event.name)
         self._statsd.incr('zerorpc.errors')
-        self._statsd.incr('zerorpc.errors.{0}'.format(request_event.name))
+        self._statsd.incr('zerorpc.errors.{0}'.format(req_event.name))
