@@ -27,3 +27,9 @@ server.bind('tcp://*:1234')
 server.run()
 
 ```
+
+Compatibility
+-------------
+
+- ZeroRPC-Python < 0.4.0 is compatible with zerorpc-statsd < 0.2.0;
+- ZeroRPC-Python >= 0.4.0 requires zerorpc_statsd > 0.2.0.
